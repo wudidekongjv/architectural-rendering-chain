@@ -112,7 +112,7 @@ archrender_data/
 | `ARCHRENDER_LAN` | `127.0.0.1/32,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` | 允许的局域网网段（逗号分隔） |
 | `ARCHRENDER_DEFAULT_ROLE` | `designer` | 新注册设备的默认角色 |
 
-## 前后端接口对照（一致性保证）
+## API 接口对照
 
 | UI 功能 | 后端接口 |
 |---|---|
@@ -124,8 +124,6 @@ archrender_data/
 | 进度时间线 / 结果推送 | `GET /api/v1/render/stream`（SSE） |
 | 图片显示 / 下载 | `GET /api/files/{path}` |
 | 图片点击引用 | 路径作为 `reference_paths` 随下次渲染提交 |
-
-> 所有 UI 功能均有对应后端实现，无伪造数据。连接失败时界面明确报错，不展示演示内容。
 
 ## 常见问题
 
