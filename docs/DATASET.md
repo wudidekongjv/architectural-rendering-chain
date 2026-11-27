@@ -9,7 +9,7 @@
 | 内容 | 建筑效果图（室内 / 室外 / 景观 / 概念图 / 实体模型） |
 | 标签 | 每张图片对应一个同名 `.txt` 文件 |
 | 标签语言 | 英文 |
-| 标签格式 | kohya_ss 标准（单行、逗号分隔） |
+| 标签格式 | SD-Trainer 标准（单行、逗号分隔） |
 | 用途 | SDXL 风格 LoRA 微调 |
 
 ## 目录结构
@@ -68,7 +68,7 @@ architectural interior rendering, modern wooden loft apartment, Scandinavian min
 
 ## 与训练脚本的配合
 
-`scripts/train_lora.sh` 会读取 `data/` 目录，自动统计图片与标签数量，并以 kohya_ss 标准格式训练：
+`scripts/train_lora.sh` 会读取 `data/` 目录，自动统计图片与标签数量，并以 SD-Trainer 标准格式训练：
 
 ```bash
 --train_data_dir=./data
