@@ -1,0 +1,94 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "sd_xl_base_1.0.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "model": ["1", 0],
+      "clip": ["1", 1],
+      "lora_name": "arch_style_v32.safetensors",
+      "strength_model": 0.8,
+      "strength_clip": 0.8
+    }
+  },
+  "3": {
+    "class_type": "ControlNetApplyAdvanced",
+    "inputs": {
+      "positive": ["6", 0],
+      "negative": ["7", 0],
+      "control_net": ["8", 0],
+      "image": ["9", 0],
+      "strength": 0.9,
+      "start_percent": 0.0,
+      "end_percent": 0.8
+    }
+  },
+  "4": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["3", 0],
+      "seed": 156680208700286,
+      "steps": 25,
+      "cfg": 7.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "positive": ["3", 1],
+      "negative": ["3", 2],
+      "latent_image": ["5", 0],
+      "denoise": 1.0,
+      "batch_size": 4
+    }
+  },
+  "5": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 4
+    }
+  },
+  "6": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "contemporary minimalist villa with flat roof, white stucco walls, teal wooden shutters, soft diffused natural daylight, wide-angle 24mm architectural lens, coastal pine forest setting, infinity pool, architectural photography, professional rendering",
+      "clip": ["2", 1]
+    }
+  },
+  "7": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "blurry, low quality, distorted perspective, warped architecture, oversaturated, text, watermark, people, clutter",
+      "clip": ["2", 1]
+    }
+  },
+  "8": {
+    "class_type": "ControlNetLoader",
+    "inputs": {
+      "control_net_name": "controlnet-depth-sdxl-1.0.safetensors"
+    }
+  },
+  "9": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "depth_input.png"
+    }
+  },
+  "10": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["4", 0],
+      "vae": ["1", 2]
+    }
+  },
+  "11": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["10", 0],
+      "filename_prefix": "arch_draft"
+    }
+  }
+}
