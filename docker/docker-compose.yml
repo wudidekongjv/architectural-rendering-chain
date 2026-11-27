@@ -1,0 +1,115 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: arch-render-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../models:/app/models
+      - ../outputs:/app/outputs
+      - ../data:/app/data
+      - ../workflows:/app/workflows
+      - ../src:/app/src
+    environment:
+      - COMFYUI_URL=http://comfyui:8188
+      - VLLM_ENDPOINT=http://vllm:8000/v1/chat/completions
+      - PYTHONPATH=/app/src
+    depends_on:
+      comfyui:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  comfyui:
+    image: yanwk/comfyui-boot:cu121
+    container_name: arch-render-comfyui
+    ports:
+      - "8188:8188"
+    volumes:
+      - ../models:/app/models
+      - ../outputs:/app/outputs
+      - ../workflows:/app/workflows
+    environment:
+      - MODEL_PATH=/app/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8188/system_stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: arch-render-vllm
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../models:/models
+    command: >
+      --model /models/Qwen3-32B-AWQ
+      --quantization awq
+      --port 8000
+      --gpu-memory-utilization 0.85
+      --max-model-len 4096
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: arch-render-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    container_name: arch-render-web
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../web:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - api
+
+volumes:
+  redis-data:
