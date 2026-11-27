@@ -1,0 +1,64 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image_path": "draft_selected.png"
+    }
+  },
+  "2": {
+    "class_type": "DualCLIPLoader",
+    "inputs": {
+      "clip_name1": "t5xxl_fp16.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux"
+    }
+  },
+  "3": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux1-dev-fp8.safetensors",
+      "weight_dtype": "fp8_e4m3fn"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "professional architectural rendering, refined material details, realistic lighting, enhanced textures, 8k detail, photorealistic",
+      "clip": ["2", 0]
+    }
+  },
+  "5": {
+    "class_type": "FluxImgToImg",
+    "inputs": {
+      "image": ["1", 0],
+      "unet": ["3", 0],
+      "conditioning": ["4", 0],
+      "denoise": 0.45,
+      "steps": 28,
+      "seed": 42,
+      "width": 2048,
+      "height": 2048
+    }
+  },
+  "6": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["5", 0],
+      "vae": ["3", 1]
+    }
+  },
+  "7": {
+    "class_type": "UpscaleImage",
+    "inputs": {
+      "image": ["6", 0],
+      "upscale_model": "4x_UltraSharp.pth"
+    }
+  },
+  "8": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["7", 0],
+      "filename_prefix": "arch_final"
+    }
+  }
+}
