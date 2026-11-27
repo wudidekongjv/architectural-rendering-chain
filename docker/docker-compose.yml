@@ -1,5 +1,9 @@
 version: "3.8"
 
+# 局域网多用户部署
+# 安全：后端中间件校验来源IP必须在私有网段；设备指纹作为自动登录凭据
+# 数据隔离：outputs/{role}/{user_id}/{task_id}/，用户只能访问自己的目录
+
 services:
   api:
     build:
@@ -7,16 +11,19 @@ services:
       dockerfile: docker/Dockerfile
     container_name: arch-render-api
     ports:
-      - "8000:8000"
+      # 仅绑定局域网网卡；如服务器有多网卡，改为 192.168.x.x:8000:8000
+      - "0.0.0.0:8000:8000"
     volumes:
       - ../models:/app/models
-      - ../outputs:/app/outputs
-      - ../data:/app/data
+      - ../archrender_data:/app/archrender_data   # SQLite + 分角色输出 + 上传
       - ../workflows:/app/workflows
       - ../src:/app/src
     environment:
       - COMFYUI_URL=http://comfyui:8188
       - VLLM_ENDPOINT=http://vllm:8000/v1/chat/completions
+      - ARCHRENDER_HOME=/app/archrender_data
+      - ARCHRENDER_LAN=127.0.0.1/32,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      - ARCHRENDER_DEFAULT_ROLE=designer
       - PYTHONPATH=/app/src
     depends_on:
       comfyui:
@@ -41,10 +48,10 @@ services:
     image: yanwk/comfyui-boot:cu121
     container_name: arch-render-comfyui
     ports:
-      - "8188:8188"
+      - "127.0.0.1:8188:8188"   # 仅本机访问，不暴露到局域网
     volumes:
       - ../models:/app/models
-      - ../outputs:/app/outputs
+      - ../archrender_data/outputs:/app/outputs
       - ../workflows:/app/workflows
     environment:
       - MODEL_PATH=/app/models
@@ -66,7 +73,7 @@ services:
     image: vllm/vllm-openai:latest
     container_name: arch-render-vllm
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"   # 仅本机访问
     volumes:
       - ../models:/models
     command: >
@@ -88,7 +95,7 @@ services:
     image: redis:7-alpine
     container_name: arch-render-redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"   # 仅本机访问
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru
@@ -104,7 +111,7 @@ services:
     container_name: arch-render-web
     working_dir: /app
     ports:
-      - "5173:5173"
+      - "0.0.0.0:5173:5173"     # 局域网访问前端
     volumes:
       - ../web:/app
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
