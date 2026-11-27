@@ -1,0 +1,39 @@
+# Model weights (NOT in repository)
+models/
+*.safetensors
+*.pth
+*.ckpt
+*.bin
+*.gguf
+
+# Generated outputs
+outputs/
+uploads/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+web/dist/
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Temp
+temp/
+tmp/
+*.tmp
