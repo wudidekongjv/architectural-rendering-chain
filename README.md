@@ -120,7 +120,7 @@ cd docker && docker compose up -d
 
 ## 训练数据
 
-`data/` 目录包含 140 张建筑效果图及对应的英文标签 `.txt`（与图片同名）。标签由视觉识别生成，覆盖建筑类型、风格、视角、材质、光照、时间、环境、配色、构图等 12+ 维度，可直接用于 kohya_ss / SD-Trainer 的 LoRA 训练。
+`data/` 目录包含 140 张建筑效果图及对应的英文标签 `.txt`（与图片同名）。标签由视觉识别生成，覆盖建筑类型、风格、视角、材质、光照、时间、环境、配色、构图等 12+ 维度，可直接用于 SD-Trainer 的 LoRA 训练。
 
 ```bash
 cat docs/DATASET.md
@@ -129,7 +129,7 @@ cat docs/DATASET.md
 ## LoRA 训练
 
 ```bash
-# 使用 kohya_ss 训练风格 LoRA（不在此仓库内执行）
+# 使用 SD-Trainer 训练风格 LoRA（不在此仓库内执行）
 bash scripts/train_lora.sh
 ```
 
